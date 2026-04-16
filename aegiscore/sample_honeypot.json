@@ -1,0 +1,21 @@
+{
+  "source_ip_reputation_score": 0.85,
+  "request_rate": 80.0,
+  "burstiness": 0.75,
+  "path_depth": 3,
+  "path_entropy": 4.2,
+  "user_agent_risk_score": 0.6,
+  "failed_login_count": 200,
+  "unique_username_count": 80,
+  "protocol": "SSH",
+  "port": 22,
+  "method": "POST",
+  "header_count": 4,
+  "unusual_header_ratio": 0.1,
+  "request_size": 120,
+  "time_between_requests": 0.05,
+  "number_of_touched_endpoints": 2,
+  "decoy_asset_triggered": 0,
+  "invalid_method_used": 0,
+  "suspicious_path_keywords_count": 1
+}

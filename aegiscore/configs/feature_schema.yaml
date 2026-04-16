@@ -1,0 +1,92 @@
+honeypot:
+  numeric:
+    - source_ip_reputation_score
+    - request_rate
+    - burstiness
+    - path_depth
+    - path_entropy
+    - user_agent_risk_score
+    - failed_login_count
+    - unique_username_count
+    - header_count
+    - unusual_header_ratio
+    - request_size
+    - time_between_requests
+    - number_of_touched_endpoints
+    - suspicious_path_keywords_count
+  binary:
+    - decoy_asset_triggered
+    - invalid_method_used
+  categorical:
+    - protocol
+    - port
+    - method
+
+malware:
+  numeric:
+    - file_size
+    - entropy
+    - suspicious_string_count
+    - obfuscation_score
+    - import_count
+    - suspicious_import_count
+    - yara_match_count
+    - signer_trust_score
+    - hash_seen_frequency
+    - network_indicator_count
+    - sandbox_behavior_score
+    - persistence_indicator_count
+    - script_indicator_score
+  binary:
+    - has_macro
+    - packer_indicator
+    - signer_present
+  categorical:
+    - extension
+    - mime_type
+
+network:
+  numeric:
+    - src_port
+    - dst_port
+    - bytes_sent
+    - bytes_received
+    - packets
+    - duration
+    - failed_connections
+    - distinct_destinations
+    - connection_frequency
+    - dns_query_volume
+    - tls_version_score
+    - beaconing_score
+    - hour_of_day
+  binary:
+    - uncommon_port_flag
+    - internal_to_internal_flag
+    - external_to_internal_flag
+    - weekend_flag
+  categorical:
+    - protocol
+    - direction
+
+posture:
+  numeric:
+    - open_port_count
+    - legacy_service_count
+    - dependency_vuln_count
+    - segmentation_risk_score
+  binary:
+    - missing_hsts
+    - missing_csp
+    - missing_x_content_type_options
+    - insecure_cookie_flags
+    - weak_tls
+    - deprecated_protocol_present
+    - admin_interface_exposed
+    - risky_management_port_exposed
+    - secrets_detected
+    - public_bucket_like_flag
+    - authz_gap_indicator
+    - excessive_cors_flag
+    - debug_banner_present
+    - default_credentials_risk

@@ -1,0 +1,823 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: AegisCore Malware Analysis API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: anthropic
+    description: Anthropic AI chat operations
+  - name: analysis
+    description: Malware analysis operations
+  - name: sandbox
+    description: Sandbox execution monitoring
+  - name: models
+    description: ML model training and results
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /anthropic/conversations:
+    get:
+      operationId: listAnthropicConversations
+      tags: [anthropic]
+      summary: List all conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AnthropicConversation"
+    post:
+      operationId: createAnthropicConversation
+      tags: [anthropic]
+      summary: Create a new conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAnthropicConversationBody"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicConversation"
+  /anthropic/conversations/{id}:
+    get:
+      operationId: getAnthropicConversation
+      tags: [anthropic]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicConversationWithMessages"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicError"
+    delete:
+      operationId: deleteAnthropicConversation
+      tags: [anthropic]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnthropicError"
+  /anthropic/conversations/{id}/messages:
+    get:
+      operationId: listAnthropicMessages
+      tags: [anthropic]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AnthropicMessage"
+    post:
+      operationId: sendAnthropicMessage
+      tags: [anthropic]
+      summary: Send a message and receive an AI response (SSE stream)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendAnthropicMessageBody"
+      responses:
+        "200":
+          description: SSE stream of assistant response chunks
+          content:
+            text/event-stream: {}
+
+  /analysis/submit:
+    post:
+      operationId: submitAnalysis
+      tags: [analysis]
+      summary: Submit data for malware analysis (Wireshark PCAP, browser logs, file)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalysisSubmitBody"
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalysisResult"
+
+  /analysis/sessions:
+    get:
+      operationId: listAnalysisSessions
+      tags: [analysis]
+      summary: List all analysis sessions
+      responses:
+        "200":
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AnalysisSession"
+
+  /analysis/sessions/{id}:
+    get:
+      operationId: getAnalysisSession
+      tags: [analysis]
+      summary: Get analysis session details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Session details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalysisSession"
+        "404":
+          description: Not found
+
+  /sandbox/events:
+    get:
+      operationId: getSandboxEvents
+      tags: [sandbox]
+      summary: Get real-time sandbox execution events
+      responses:
+        "200":
+          description: Sandbox events stream
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SandboxData"
+
+  /models/lightgbm/training:
+    get:
+      operationId: getLightgbmTraining
+      tags: [models]
+      summary: Get LightGBM training progress
+      responses:
+        "200":
+          description: Training progress data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LightgbmTrainingData"
+
+  /models/lstm/training:
+    get:
+      operationId: getLstmTraining
+      tags: [models]
+      summary: Get LSTM training curves
+      responses:
+        "200":
+          description: LSTM training data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LstmTrainingData"
+
+  /models/confusion-matrix:
+    get:
+      operationId: getConfusionMatrix
+      tags: [models]
+      summary: Get confusion matrix data
+      responses:
+        "200":
+          description: Confusion matrix
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfusionMatrixData"
+
+  /models/feature-importance:
+    get:
+      operationId: getFeatureImportance
+      tags: [models]
+      summary: Get feature importance scores
+      responses:
+        "200":
+          description: Feature importance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureImportanceData"
+
+  /models/shap:
+    get:
+      operationId: getShapValues
+      tags: [models]
+      summary: Get SHAP explanation values
+      responses:
+        "200":
+          description: SHAP values
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShapData"
+
+  /models/performance-comparison:
+    get:
+      operationId: getPerformanceComparison
+      tags: [models]
+      summary: Get model performance comparison (SVM, RF, LightGBM hybrid)
+      responses:
+        "200":
+          description: Performance comparison
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceComparisonData"
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [analysis]
+      summary: Get dashboard summary statistics
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    AnthropicConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - createdAt
+    AnthropicMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - conversationId
+        - role
+        - content
+        - createdAt
+    CreateAnthropicConversationBody:
+      type: object
+      properties:
+        title:
+          type: string
+      required:
+        - title
+    SendAnthropicMessageBody:
+      type: object
+      properties:
+        content:
+          type: string
+        inputSource:
+          type: string
+          enum: [manual, wireshark, browser, file]
+        rawData:
+          type: string
+      required:
+        - content
+    AnthropicConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/AnthropicMessage"
+      required:
+        - id
+        - title
+        - createdAt
+        - messages
+    AnthropicError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    AnalysisSubmitBody:
+      type: object
+      properties:
+        inputType:
+          type: string
+          enum: [wireshark, browser, file, manual]
+        data:
+          type: string
+        fileName:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+      required:
+        - inputType
+        - data
+
+    AnalysisResult:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        classification:
+          type: string
+        confidence:
+          type: number
+        threatLevel:
+          type: string
+          enum: [benign, low, medium, high, critical]
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeatureValue"
+        modelPredictions:
+          type: object
+          properties:
+            lightgbm:
+              type: number
+            lstm:
+              type: number
+            ensemble:
+              type: number
+          required:
+            - lightgbm
+            - lstm
+            - ensemble
+        aiAnalysis:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - sessionId
+        - classification
+        - confidence
+        - threatLevel
+        - features
+        - modelPredictions
+        - aiAnalysis
+        - timestamp
+
+    FeatureValue:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: number
+        category:
+          type: string
+      required:
+        - name
+        - value
+        - category
+
+    AnalysisSession:
+      type: object
+      properties:
+        id:
+          type: string
+        inputType:
+          type: string
+        classification:
+          type: string
+        confidence:
+          type: number
+        threatLevel:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+      required:
+        - id
+        - inputType
+        - classification
+        - confidence
+        - threatLevel
+        - timestamp
+        - status
+
+    SandboxData:
+      type: object
+      properties:
+        sampleId:
+          type: string
+        status:
+          type: string
+        systemCalls:
+          type: array
+          items:
+            $ref: "#/components/schemas/SyscallEvent"
+        networkActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/NetworkEvent"
+        processTree:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProcessEvent"
+        totalSyscalls:
+          type: integer
+        totalNetworkConnections:
+          type: integer
+        runningTime:
+          type: number
+      required:
+        - sampleId
+        - status
+        - systemCalls
+        - networkActivity
+        - processTree
+        - totalSyscalls
+        - totalNetworkConnections
+        - runningTime
+
+    SyscallEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        count:
+          type: integer
+        timestamp:
+          type: number
+      required:
+        - id
+        - name
+        - category
+        - count
+        - timestamp
+
+    NetworkEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        protocol:
+          type: string
+        srcIp:
+          type: string
+        dstIp:
+          type: string
+        dstPort:
+          type: integer
+        bytes:
+          type: integer
+        timestamp:
+          type: number
+        malicious:
+          type: boolean
+      required:
+        - id
+        - protocol
+        - srcIp
+        - dstIp
+        - dstPort
+        - bytes
+        - timestamp
+        - malicious
+
+    ProcessEvent:
+      type: object
+      properties:
+        pid:
+          type: integer
+        name:
+          type: string
+        parentPid:
+          type: integer
+        cmdLine:
+          type: string
+        suspicious:
+          type: boolean
+      required:
+        - pid
+        - name
+        - parentPid
+        - cmdLine
+        - suspicious
+
+    LightgbmTrainingData:
+      type: object
+      properties:
+        rounds:
+          type: array
+          items:
+            type: integer
+        trainLoss:
+          type: array
+          items:
+            type: number
+        validLoss:
+          type: array
+          items:
+            type: number
+        earlyStopRound:
+          type: integer
+        bestScore:
+          type: number
+        finalAccuracy:
+          type: number
+      required:
+        - rounds
+        - trainLoss
+        - validLoss
+        - earlyStopRound
+        - bestScore
+        - finalAccuracy
+
+    LstmTrainingData:
+      type: object
+      properties:
+        epochs:
+          type: array
+          items:
+            type: integer
+        trainAccuracy:
+          type: array
+          items:
+            type: number
+        validAccuracy:
+          type: array
+          items:
+            type: number
+        trainLoss:
+          type: array
+          items:
+            type: number
+        validLoss:
+          type: array
+          items:
+            type: number
+        earlyStopEpoch:
+          type: integer
+        bestValidAccuracy:
+          type: number
+      required:
+        - epochs
+        - trainAccuracy
+        - validAccuracy
+        - trainLoss
+        - validLoss
+        - earlyStopEpoch
+        - bestValidAccuracy
+
+    ConfusionMatrixData:
+      type: object
+      properties:
+        labels:
+          type: array
+          items:
+            type: string
+        matrix:
+          type: array
+          items:
+            type: array
+            items:
+              type: integer
+        accuracy:
+          type: number
+        precision:
+          type: number
+        recall:
+          type: number
+        f1Score:
+          type: number
+      required:
+        - labels
+        - matrix
+        - accuracy
+        - precision
+        - recall
+        - f1Score
+
+    FeatureImportanceData:
+      type: object
+      properties:
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeatureImportanceItem"
+        modelType:
+          type: string
+      required:
+        - features
+        - modelType
+
+    FeatureImportanceItem:
+      type: object
+      properties:
+        name:
+          type: string
+        importance:
+          type: number
+        category:
+          type: string
+      required:
+        - name
+        - importance
+        - category
+
+    ShapData:
+      type: object
+      properties:
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShapFeature"
+        sampleCount:
+          type: integer
+      required:
+        - features
+        - sampleCount
+
+    ShapFeature:
+      type: object
+      properties:
+        name:
+          type: string
+        meanAbsShap:
+          type: number
+        positiveShap:
+          type: number
+        negativeShap:
+          type: number
+        category:
+          type: string
+      required:
+        - name
+        - meanAbsShap
+        - positiveShap
+        - negativeShap
+        - category
+
+    PerformanceComparisonData:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            $ref: "#/components/schemas/ModelPerformance"
+      required:
+        - models
+
+    ModelPerformance:
+      type: object
+      properties:
+        name:
+          type: string
+        accuracy:
+          type: number
+        balancedAccuracy:
+          type: number
+        sensitivity:
+          type: number
+        specificity:
+          type: number
+        f1Score:
+          type: number
+        auc:
+          type: number
+      required:
+        - name
+        - accuracy
+        - balancedAccuracy
+        - sensitivity
+        - specificity
+        - f1Score
+        - auc
+
+    DashboardStats:
+      type: object
+      properties:
+        totalAnalyzed:
+          type: integer
+        malwareDetected:
+          type: integer
+        benignFiles:
+          type: integer
+        activeSessionsCount:
+          type: integer
+        avgConfidence:
+          type: number
+        detectionRate:
+          type: number
+        recentSessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/AnalysisSession"
+      required:
+        - totalAnalyzed
+        - malwareDetected
+        - benignFiles
+        - activeSessionsCount
+        - avgConfidence
+        - detectionRate
+        - recentSessions

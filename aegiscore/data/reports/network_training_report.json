@@ -1,0 +1,78 @@
+{
+  "model": "network_anomaly",
+  "unsupervised_report": {
+    "anomalous": {
+      "precision": 0.553072625698324,
+      "recall": 0.7734375,
+      "f1-score": 0.6449511400651465,
+      "support": 128.0
+    },
+    "normal": {
+      "precision": 0.9795918367346939,
+      "recall": 0.9456521739130435,
+      "f1-score": 0.9623228482544072,
+      "support": 1472.0
+    },
+    "accuracy": 0.931875,
+    "macro avg": {
+      "precision": 0.766332231216509,
+      "recall": 0.8595448369565217,
+      "f1-score": 0.8036369941597769,
+      "support": 1600.0
+    },
+    "weighted avg": {
+      "precision": 0.9454702998517842,
+      "recall": 0.931875,
+      "f1-score": 0.9369331115992662,
+      "support": 1600.0
+    }
+  },
+  "supervised_metrics": {
+    "classification_report": {
+      "anomalous": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 128.0
+      },
+      "normal": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1472.0
+      },
+      "accuracy": 1.0,
+      "macro avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1600.0
+      },
+      "weighted avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 1600.0
+      }
+    },
+    "confusion_matrix": [
+      [
+        128,
+        0
+      ],
+      [
+        0,
+        1472
+      ]
+    ],
+    "f1_macro": 1.0,
+    "precision_macro": 1.0,
+    "recall_macro": 1.0
+  },
+  "label_classes": [
+    "anomalous",
+    "normal"
+  ],
+  "n_train": 6400,
+  "n_test": 1600
+}

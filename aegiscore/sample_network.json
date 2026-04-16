@@ -1,0 +1,21 @@
+{
+  "src_port": 54321,
+  "dst_port": 4444,
+  "protocol": "TCP",
+  "bytes_sent": 2500000,
+  "bytes_received": 512,
+  "packets": 3000,
+  "duration": 7200.0,
+  "direction": "internal_to_external",
+  "failed_connections": 0,
+  "distinct_destinations": 1,
+  "connection_frequency": 0.5,
+  "dns_query_volume": 2,
+  "tls_version_score": 0.4,
+  "uncommon_port_flag": 1,
+  "internal_to_internal_flag": 0,
+  "external_to_internal_flag": 0,
+  "beaconing_score": 0.85,
+  "hour_of_day": 3,
+  "weekend_flag": 1
+}
